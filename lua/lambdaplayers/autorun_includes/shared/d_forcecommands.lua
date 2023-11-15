@@ -11,6 +11,7 @@ local distance = GetConVar( "lambdaplayers_force_radius" )
 local spawnatplayerpoints = GetConVar( "lambdaplayers_lambda_spawnatplayerspawns" )
 local plyradius = GetConVar( "lambdaplayers_force_spawnradiusply" )
 local forceSpawnAng = Angle()
+local util_TraceHull = util.TraceHull
 
 local function FindRandomPositions( pos, radius, height )
     radius = ( radius * radius )
@@ -23,7 +24,7 @@ local function FindRandomPositions( pos, radius, height )
 
 		-- Attempt to find a spot that doesn't get them stuck
         local rndPos = area:GetRandomPoint()
-        local tr = util.TraceHull({
+        local tr = util_TraceHull({
             start = rndPos + Vector( 0, 0, 1 ),
             endpos = rndPos + Vector( 0, 0, 2 ),
             mins = Vector( -16, -16, 0 ),
