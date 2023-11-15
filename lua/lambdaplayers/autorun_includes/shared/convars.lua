@@ -249,7 +249,7 @@ CreateLambdaConvar( "lambdaplayers_force_radius", 750, true, false, false, "The 
 CreateLambdaConvar( "lambdaplayers_force_spawnradiusply", 3000, true, false, false, "The Distance for which Lambda Players can spawn around the player. Set to 0 to disable.", 0, 25000, { type = "Slider", name = "Spawn Around Player Radius", decimals = 0, category = "Force Menu" } )
 CreateLambdaConvar( "lambdaplayers_lambda_spawnatplayerspawns", 0, true, false, false, "If spawned Lambda Players should spawn at player spawn points", 0, 1, { type = "Bool", name = "Spawn at Player Spawns", category = "Force Menu" } )
 CreateLambdaConvar( "lambdaplayers_lambda_spawnatplyheight", 0, true, false, false, "If spawned Lambda Players should spawn at the same height level as the player who triggered the force spawn option?", 0, 1, { type = "Bool", name = "Spawn at Player Height", category = "Force Menu" } )
-CreateLambdaConvar( "lambdaplayers_lambda_spawnamount", 1, true, false, false, "How many Lambda Players should spawn when called?", 0, 12, { type = "Slider", name = "Spawn Amount", category = "Force Menu" } )
+CreateLambdaConvar( "lambdaplayers_lambda_spawnamount", 1, true, false, false, "How many Lambda Players should spawn when called?", 0, 12, { type = "Slider", decimals = 0, name = "Spawn Amount", category = "Force Menu" } )
 --
 
 -- DEBUGGING CONVARS. Server-side only
