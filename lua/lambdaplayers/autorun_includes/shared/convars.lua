@@ -174,7 +174,6 @@ CreateLambdaConvar( "lambdaplayers_lambda_overridegamemodehooks", 1, true, false
 CreateLambdaConvar( "lambdaplayers_lambda_callonnpckilledhook", 0, true, false, false, "If killed Lambda Players should call the OnNPCKilled hook. Best used with the Override Gamemode Hooks option!", 0, 1, { type = "Bool", name = "Call OnNPCKilled Hook On Death", category = "Lambda Server Settings" } )
 CreateLambdaConvar( "lambdaplayers_lambda_overridedeathnoticehook", 1, true, false, false, "If the addon is allowed to override the death notice hooks to support Lambda Players. This get rid of duplicate death notice appearing after Lambda Player either dies or kills someone : Changing this requires the Override Gamemode Hooks option to be enabled and you to restart the server/game for the changes to apply!", 0, 1, { type = "Bool", name = "Override Death Notice Hooks", category = "Lambda Server Settings" } )
 CreateLambdaConvar( "lambdaplayers_lambda_panicanimations", 0, true, false, false, "If panicking Lambda Players should use Panic Animations", 0, 1, { type = "Bool", name = "Use Panic Animations", category = "Lambda Server Settings" } )
-CreateLambdaConvar( "lambdaplayers_lambda_random_healtharmor_values", 0, true, false, false, "If Lambda Players should have random health/armor upon spawning. 1 = Random spawn values, 2 = Random max values.", 0, 2, { type = "Bool", decimals = 0, name = "Randomized Health/Armor", category = "Lambda Server Settings" } )
 CreateLambdaConvar( "lambdaplayers_lambda_profilenorepeats", 1, true, false, false, "If Lambda Players should only have one profile active at once?", 0, 1, { type = "Bool", decimals = 0, name = "Profiles Don't Repeat", category = "Lambda Server Settings" } )
 
 --
@@ -198,7 +197,6 @@ CreateLambdaConvar( "lambdaplayers_combat_weapondmgmultiplier_lambdas", 1, true,
 CreateLambdaConvar( "lambdaplayers_combat_weapondmgmultiplier_misc", 1, true, false, false, "Multiplies the damage that Lambda Player deals with its weapon to NPCs, Nextbots, and other types of entities", 0, 100, { type = "Slider", decimals = 2, name = "Weapon Damage Scale - Misc.", category = "Lambda Weapons" } )
 CreateLambdaConvar( "lambdaplayers_combat_allownadeusage", 0, true, false, false, "If Lambda Players are allowed to use and throw quick nades at their enemy.", 0, 1, { type = "Bool", name = "Allow Quick Nade Usage", category = "Lambda Weapons" } )
 CreateLambdaConvar( "lambdaplayers_combat_meleeonly", 0, true, false, false, "If Lambda Players should only use melee weapons.", 0, 1, { type = "Bool", name = "Melee Only", category = "Lambda Weapons" } )
-
 --
 
 -- Lambda Player Convars

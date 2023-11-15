@@ -131,7 +131,6 @@ end
     local drownTime = GetConVar( "lambdaplayers_lambda_drowntime" )
     local saveInterrupt = GetConVar( "lambdaplayers_text_saveoninterrupted" )
     local nadeUsage = GetConVar( "lambdaplayers_combat_allownadeusage" )
-    local spawnRandomValues = GetConVar( "lambdaplayers_lambda_random_healtharmor_values" )
     local profilesNoRepeat = GetConVar( "lambdaplayers_lambda_profilenorepeats" )
 --
 
@@ -272,35 +271,14 @@ function ENT:Initialize()
         self:SetLambdaName( self:GetOpenName() )
         self:SetProfilePicture( #Lambdaprofilepictures > 0 and Lambdaprofilepictures[ random( #Lambdaprofilepictures ) ] or "spawnicons/".. sub( spawnMdl, 1, #spawnMdl - 4 ).. ".png" )
 
-        -- Randomize their spawn values
-        if spawnRandomValues:GetInt() == 1 then
-            self:SetMaxHealth( maxHealth:GetInt() )
-            self:SetNWMaxHealth( maxHealth:GetInt() )
-            self:SetHealth( random(1, spawnHealth:GetInt() ) )
-
-            self.l_SpawnArmor = random( 0, spawnHealth:GetInt() ) -- Lazy method
-            self:SetArmor( self.l_SpawnArmor )
-            self:SetMaxArmor( maxArmor:GetInt() )
-        -- Randomize their max values
-        elseif spawnRandomValues:GetInt() == 2 then
-            self:SetMaxHealth( random( 1, maxHealth:GetInt() ) )
-            self:SetNWMaxHealth( self:GetMaxHealth() )
-            self:SetHealth( random( 1, self:GetMaxHealth() ) )
-
-            self.l_SpawnArmor = random( 0, maxArmor:GetInt() )
-            self:SetArmor( self.l_SpawnArmor )
-            self:SetMaxArmor( self.l_SpawnArmor )
-        else -- Default
-            self:SetMaxHealth( maxHealth:GetInt() )
-            self:SetNWMaxHealth( maxHealth:GetInt() )
-            self:SetHealth( spawnHealth:GetInt() )
-
-            self.l_SpawnArmor = spawnArmor:GetInt()
-            self:SetArmor( self.l_SpawnArmor ) -- Our current armor
-            self:SetMaxArmor( maxArmor:GetInt() ) -- Our maximum armor
-        end
-
+        self:SetMaxHealth( maxHealth:GetInt() )
+        self:SetNWMaxHealth( maxHealth:GetInt() )
+        self:SetHealth( spawnHealth:GetInt() )
         self:UpdateHealthDisplay()
+
+        self.l_SpawnArmor = spawnArmor:GetInt()
+        self:SetArmor( self.l_SpawnArmor ) -- Our current armor
+        self:SetMaxArmor( maxArmor:GetInt() ) -- Our maximum armor
 
         self:SetPlyColor( Vector( random( 255 ) / 225, random( 255 ) / 255, random( 255 ) / 255 ) )
         self:SetPhysColor( Vector( random( 255 ) / 225, random( 255 ) / 255, random( 255 ) / 255 ) )
