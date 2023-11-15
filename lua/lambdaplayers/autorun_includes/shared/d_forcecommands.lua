@@ -21,13 +21,25 @@ local function FindRandomPositions( pos, radius, height )
         local closePos = area:GetClosestPointOnArea( pos )
         if abs( pos.z - closePos.z ) > height or closePos:DistToSqr( pos ) > radius then continue end
 
-        return area:GetRandomPoint()
+		-- Attempt to find a spot that doesn't get them stuck
+        local rndPos = area:GetRandomPoint()
+        local tr = util.TraceHull({
+            start = rndPos + Vector( 0, 0, 1 ),
+            endpos = rndPos + Vector( 0, 0, 2 ),
+            mins = Vector( -16, -16, 0 ),
+            maxs = Vector( 16, 16, 72 ),
+            mask = MASK_PLAYERSOLID
+        })
+
+        if !tr.Hit then
+            return rndPos
+        end
     end
 
     return false
 end
 
-CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcespawnlambda", function( ply ) 
+CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcespawnlambda", function( ply )
     if IsValid( ply ) and !ply:IsSuperAdmin() then return end
     if !navmesh_IsLoaded() then return end
 
@@ -36,33 +48,44 @@ CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcespawnlambda", function( ply 
 
     LambdaSpawnPoints = ( LambdaSpawnPoints or LambdaGetPossibleSpawns() )
     local plyRadius = plyradius:GetInt()
-    local rndPos = FindRandomPositions( ply:GetPos(), ( plyRadius > 0 and plyRadius or 32756 ), ( plyRadius > 0 and ( plyRadius / 2.5 ) or 32756 ) )
+    local spawnAtPlayerHeight = GetConVar( "lambdaplayers_lambda_spawnatplyheight" ):GetBool()
+    local height = spawnAtPlayerHeight and 64 or ( plyRadius > 0 and plyRadius / 2.5 or 32756 )
+    local spawnAmount = GetConVar( "lambdaplayers_lambda_spawnamount" ):GetInt()
 
-    -- Spawning at player spawn points
-    if LambdaSpawnPoints and #LambdaSpawnPoints > 0 and ( !rndPos or spawnatplayerpoints:GetBool() ) then
-        pos = LambdaSpawnPoints[ random( #LambdaSpawnPoints ) ]:GetPos()
-    elseif rndPos then
-        pos = rndPos
-    else
-        return
-    end
+    for i = 1, spawnAmount do
+        local rndPos = FindRandomPositions( ply:GetPos(), ( plyRadius > 0 and plyRadius or 32756 ), height )
 
-    local lambda = ents_Create( "npc_lambdaplayer" )
-    lambda:SetPos( pos )
-    lambda:SetAngles( forceSpawnAng )
-    lambda:SetCreator( ply )
-    lambda:Spawn()
-    lambda:OnSpawnedByPlayer( ply )
+        -- Spawning at player spawn points
+        if LambdaSpawnPoints and #LambdaSpawnPoints > 0 and ( !rndPos or spawnatplayerpoints:GetBool() ) then
+            pos = LambdaSpawnPoints[ random( #LambdaSpawnPoints ) ]:GetPos()
+        elseif rndPos then
+            pos = rndPos
+        else
+            return
+        end
 
-    local undoName = "Lambda Player ( " .. lambda:GetLambdaName() .. " )"
-    undo.Create( undoName )
+        local lambda = ents_Create( "npc_lambdaplayer" )
+        lambda:SetPos( pos )
+        lambda:SetAngles( forceSpawnAng )
+        lambda:SetCreator( ply )
+        lambda:Spawn()
+
+        local effect = EffectData()
+        effect:SetEntity( lambda )
+        util.Effect( "propspawn", effect )
+
+        lambda:OnSpawnedByPlayer( ply )
+
+        local undoName = "Lambda Player ( " .. lambda:GetLambdaName() .. " )"
+        undo.Create( undoName )
         undo.SetPlayer( ply )
         undo.AddEntity( lambda )
         undo.SetCustomUndoText( "Undone " .. undoName )
-    undo.Finish( undoName )
-end, false, "Spawns a Lambda Player at a random area. NOTE: Requires the map to have a navmesh to work!", { name = "Spawn Lambda Player At Random Area", category = "Force Menu" } )
+        undo.Finish( undoName )
+    end
+end, false, "Spawns a Lambda Player at a random area. NOTE: The map requires a navmesh.", { name = "Randomly Spawn Lambda Player Around", category = "Force Menu" } )
 
-CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcecombat", function( ply ) 
+CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcecombat", function( ply )
     if IsValid( ply ) and !ply:IsSuperAdmin() then return end
 
     local dist = distance:GetInt()
@@ -72,7 +95,7 @@ CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcecombat", function( ply )
     end
 end, false, "Forces all Lambda Players in the given radius to attack you", { name = "Lambda Players Attack You", category = "Force Menu" } )
 
-CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcecombatlambda", function( ply ) 
+CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcecombatlambda", function( ply )
     if IsValid( ply ) and !ply:IsSuperAdmin() then return end
 
     local dist = distance:GetInt()
@@ -84,7 +107,7 @@ CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcecombatlambda", function( ply
     end
 end, false, "Forces all Lambda Players in the given radius to attack anything that they consider a target", { name = "Lambda Players Attack Anything", category = "Force Menu" } )
 
-CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcekill", function( ply ) 
+CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcekill", function( ply )
     if IsValid( ply ) and !ply:IsSuperAdmin() then return end
 
     local dist = distance:GetInt()
@@ -94,7 +117,7 @@ CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcekill", function( ply )
     end
 end, false, "Kill all Lambda Players in the given radius", { name = "Kill Nearby Lambda Players", category = "Force Menu" } )
 
-CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcepanic", function( ply ) 
+CreateLambdaConsoleCommand( "lambdaplayers_cmd_forcepanic", function( ply )
     if IsValid( ply ) and !ply:IsSuperAdmin() then return end
 
     local dist = distance:GetInt()
