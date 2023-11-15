@@ -22,7 +22,7 @@ local function FindRandomPositions( pos, radius, height )
         local closePos = area:GetClosestPointOnArea( pos )
         if abs( pos.z - closePos.z ) > height or closePos:DistToSqr( pos ) > radius then continue end
 
-		-- Attempt to find a spot that doesn't get them stuck
+        -- Attempt to find a spot that doesn't get them stuck
         local rndPos = area:GetRandomPoint()
         local tr = util_TraceHull({
             start = rndPos + Vector( 0, 0, 1 ),
