@@ -1076,14 +1076,14 @@ function ENT:InitializeMiniHooks()
                             flNew = ( flDmg - flArmor )
                             self:SetArmor( 0 )
                         else
-                            self:SetArmor( curArmor - flArmor )
+                            self:SetArmor( Round( curArmor - flArmor, 0 ) )
                         end
 
                         flDmg = flNew
                         info:SetDamage( flDmg )
                     end
                 elseif curArmor >= flDmg then
-                    self:SetArmor( curArmor - flDmg )
+                    self:SetArmor( Round( curArmor - flDmg, 0 ) )
                     return true
                 elseif curArmor > 0 then
                     info:SetDamage( flDmg - curArmor )

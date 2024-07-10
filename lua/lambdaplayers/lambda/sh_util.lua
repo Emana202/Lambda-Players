@@ -42,6 +42,7 @@ local string_sub = string.sub
 local string_lower = string.lower
 local next = next
 local floor = math.floor
+local Round = math.Round
 local table_concat = table.concat
 local string_Replace = string.Replace
 local string_Explode = string.Explode
@@ -682,8 +683,8 @@ if SERVER then
     -- We use both NW2 and NW because in multiplayer NW2 sometimes fails so we use NW as a backup
     function ENT:UpdateHealthDisplay( overrideHP )
         overrideHP = overrideHP or self:Health()
-        self:SetNW2Float( "lambda_health", overrideHP )
-        self:SetNWFloat( "lambda_health", overrideHP )
+        self:SetNW2Float( "lambda_health", Round( overrideHP ) )
+        self:SetNWFloat( "lambda_health", Round( overrideHP ) )
     end
 
     -- Gets a name that is currently not being used.
