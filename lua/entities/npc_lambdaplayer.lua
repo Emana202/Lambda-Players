@@ -464,11 +464,14 @@ function ENT:Initialize()
                 self:SetNWBool( "DynSplatter", true )
             end
 
-            if wOS then
-                if DRC and wOS.DynaBase.Registers[ "Vuthakral's Extended Player Animations" ] then
+            if wOS and wOS.DynaBase then
+                local register = wOS.DynaBase.Registers
+
+                if DRC and register[ "Vuthakral's Extended Player Animations" ] then
                     self.l_HasExtendedAnims = ( self:SelectWeightedSequence( ACT_GESTURE_BARNACLE_STRANGLE ) > 0 )
                 end
-                if wOS.DynaBase.Registers[ "Mixamo Movement Animations" ] then
+                
+                if register[ "Mixamo Movement Animations" ] then
                     if AnimatedImmersiveSprinting then
                         animSprint = ( animSprint or GetConVar( "AnimatedSprinting_enabled" ) )
                         self.l_AnimatedSprint = ( self:LookupSequence( "wos_mma_sprint_all" ) > 0 )
