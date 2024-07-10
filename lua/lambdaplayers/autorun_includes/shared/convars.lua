@@ -124,7 +124,7 @@ CreateLambdaConvar( "lambdaplayers_viewshots_saveaspng", 0, true, true, false, "
 
 -- Other Convars
 CreateLambdaConvar( "lambdaplayers_uiscale", 0, true, true, false, "How much to scale UI such as Voice popups, name pop ups, ect.", ( CLIENT and -ScrW() or 1 ), ( CLIENT and ScrW() or 1 ), { type = "Slider", name = "UI Scale", decimals = 1, category = "Misc" } )
-CreateLambdaConvar( "lambdaplayers_useplayermodelcolorasdisplaycolor", 0, true, true, true, "If Lambda Player's Playermodel Color should be its Display Color. This has priority over the Display Color below", 0, 1, { type = "Bool", name = "Playermodel Color As Display Color", category = "Misc" } )
+CreateLambdaConvar( "lambdaplayers_useplayermodelcolorasdisplaycolor", 1, true, true, true, "If Lambda Player's Playermodel Color should be its Display Color. This has priority over the Display Color below", 0, 1, { type = "Bool", name = "Playermodel Color As Display Color", category = "Misc" } )
 CreateLambdaColorConvar( "lambdaplayers_displaycolor", defDisplayClr, true, true, "The display color to use for Name Display and others", { name = "Display Color", category = "Misc" } )
 CreateLambdaConvar( "lambdaplayers_randomizepathingcost", 0, true, false, false, "Randomizes Pathfinding in a way that will make Lambdas try different approaches to reaching their destination rather than finding the fastest and closest route", 0, 1, { type = "Bool", name = "Randomize PathFinding Cost", category = "Misc" } )
 CreateLambdaConvar( "lambdaplayers_randomizepathingcost_min", 0.8, true, false, false, "Minimum value to how much Lambdas can scale their pathing cost.", 0.1, 20.0, { type = "Slider", decimals = 1, name = "Min Random Cost Scale", category = "Misc" } )
