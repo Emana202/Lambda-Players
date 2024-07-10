@@ -501,8 +501,11 @@ if SERVER then
             self:SetNW2String( "lambda_tp", self.l_TextProfile )
             -- Non Personal Data --
             self:SetRespawn( info.respawn or self:GetRespawn() )
+
+            local spawnwep = ( self:WeaponDataExists( info.spawnwep ) and info.spawnwep or self.l_SpawnWeapon )
+            self.l_SpawnWeapon = spawnwep
+            self:SetNW2String( "lambda_spawnweapon", spawnwep )
             self:SwitchToSpawnWeapon()
-            self:SetNW2String( "lambda_spawnweapon", self.l_SpawnWeapon )
 
             self.l_FavoriteWeapon = ( info.favwep or self.l_FavoriteWeapon )
             self.l_WeaponRestrictions = ( info.weaponrestrictions or self.l_WeaponRestrictions )
