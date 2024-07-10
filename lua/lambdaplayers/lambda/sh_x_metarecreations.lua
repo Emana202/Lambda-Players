@@ -405,6 +405,11 @@ if SERVER then
     -- For ReAgdoll compatibility
     function ENT:SentenceStop()
     end
+
+    -- For Enhanced Death Animations compatibility
+    function ENT:Disposition()
+        return D_NU
+    end
 end
 
 if ( CLIENT ) then
