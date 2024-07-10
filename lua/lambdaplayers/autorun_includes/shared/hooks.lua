@@ -215,7 +215,10 @@ if SERVER then
 
     --
 
-    local ukParryConVar
+    local ukParryConVar, ukStaminaConVar
+    local Clamp = math.Clamp
+    local min = math.min
+    local ScreenShake = util.ScreenShake
     local parryFlash = Color( 255, 255, 255, 40 )
 
     function UltrakillCheckParry( self, Dmg )
@@ -224,50 +227,44 @@ if SERVER then
         ukParryConVar = ( ukParryConVar or GetConVar( "drg_ultrakill_parry" ) )
         if !ukParryConVar:GetBool() then return end
 
-        local Ply = Dmg:GetAttacker()
-        if !IsValid( Ply ) or !Ply.IsLambdaPlayer and !Ply:IsPlayer() or !self:IsInRange( Ply, 200 ) then return end
+        local ply = Dmg:GetAttacker()
+        if !IsValid( ply ) or !ply.IsLambdaPlayer and !ply:IsPlayer() or !self:IsInRange( ply, 200 ) then return end
 
-        if !Dmg:IsDamageType( DMG_CLUB + DMG_SLASH ) and ( !Dmg:IsDamageType( DMG_BUCKSHOT ) or !self:IsInRange( Ply, 50 ) ) then return end
-        self:OnParry( Ply, Dmg )
+        if !Dmg:IsDamageType( DMG_CLUB + DMG_SLASH ) and ( !Dmg:IsDamageType( DMG_BUCKSHOT ) or !self:IsInRange( ply, 50 ) ) then return end
+        self:OnParry( ply, Dmg )
     end
 
-    local function RefreshStamina( Ply )
+    local function RefreshStamina( ply )
+        ukStaminaConVar = ( ukStaminaConVar or GetConVar( "ultrakill_max_stamina" ) )
+        local maxStamina = ukStaminaConVar:GetInt()
 
-        local MaxStamina = GetConVar( "ultrakill_max_stamina" ):GetInt()
-        local Stamina = Ply:GetNW2Int( "AbilityStamina" )
-    
-        if Stamina >= MaxStamina then return end
-    
-        Ply:SetNW2Int( "AbilityStamina", math.Min( Stamina + 3, MaxStamina ) ) -- Cap Stamina Parry Regen at 3!
-        Ply.StaminaRegenTime = nil
+        local stamina = ply:GetNW2Int( "AbilityStamina" )
+        if stamina >= maxStamina then return end
+
+        ply:SetNW2Int( "AbilityStamina", min( Stamina + 3, MaxStamina ) ) -- Cap Stamina Parry Regen at 3!
+        ply.StaminaRegenTime = nil
     
         net.Start( "ULTRAKILL_UpdateStaminaCount" )
-    
-            net.WriteUInt( Ply:GetNW2Int( "AbilityStamina", MaxStamina ), 31 )
+            net.WriteUInt( ply:GetNW2Int( "AbilityStamina", MaxStamina ), 31 )
             net.WriteBool( false )
-    
-        net.Send( Ply )
-    
+        net.Send( ply )
     end
 
-    function UltrakillBaseOnParryPlayer( Ply )
-
-        if !Ply.IsLambdaPlayer then
+    function UltrakillBaseOnParryPlayer( ply )
+        if !ply.IsLambdaPlayer then
             if UltrakillBase.UltrakillMechanicsInstalled then
-                RefreshStamina( Ply )
+                RefreshStamina( ply )
             end
-            Ply:ScreenFade( SCREENFADE.IN, parryFlash, 0.1, 0.25 )
+            ply:ScreenFade( SCREENFADE.IN, parryFlash, 0.1, 0.25 )
         end
     
-        local HP, MaxHP = Ply:Health(), Ply:GetMaxHealth()
-        local HardDamage = UltrakillBase.GetHardDamage( Ply )
-        local Healing = HP < MaxHP and MaxHP - HardDamage or HP
+        local health, maxHp = ply:Health(), ply:GetMaxHealth()
+        local healVal = ( health < maxHp and ( maxHp - UltrakillBase.GetHardDamage( ply ) ) or health )
+        ply:SetHealth( healVal )
     
-        Ply:SetHealth( Healing )
-        util.ScreenShake( Ply:GetPos(), 50, 1, 0.3, 10, true )
-    
-        UltrakillBase.SoundScript( "Ultrakill_HP", Ply:GetPos(), Ply )
-    
+        local plyPos = ply:GetPos()
+        ScreenShake( plyPos, 50, 1, 0.3, 10, true )
+        UltrakillBase.SoundScript( "Ultrakill_HP", plyPos, ply )
     end
     --
 
