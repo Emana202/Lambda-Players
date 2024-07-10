@@ -7,6 +7,7 @@ local IsValid = IsValid
 local table_Count = table.Count
 local unpack = unpack
 local ipairs = ipairs
+local isfunction = isfunction
 local string_Left = string.Left
 local string_find = string.find
 local string_Explode = string.Explode
@@ -176,13 +177,13 @@ local function keyentWeapon( self )
 
     -- Return the lambda's weapon name
     if keyent.IsLambdaPlayer then
-        return keyent.IsLambdaPlayer and keyent.l_WeaponPrettyName or "weapon"
+        return ( keyent.IsLambdaPlayer and keyent.l_WeaponPrettyName or "weapon" )
     end
 
     -- Return the entity's weapon name
     if isfunction( keyent.GetActiveWeapon ) then
         local wep = keyent:GetActiveWeapon()
-        return IsValid( wep ) and wep.GetPrintName and wep:GetPrintName()
+        if IsValid( wep ) and wep.GetPrintName then return wep:GetPrintName() end
     end
 
     -- If all goes wrong

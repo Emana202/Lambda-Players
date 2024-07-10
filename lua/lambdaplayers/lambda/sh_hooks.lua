@@ -1024,20 +1024,18 @@ function ENT:InitializeMiniHooks()
                     local tookDmg = info:GetDamage()
                     local maxHp = self:GetMaxHealth()
                     if tookDmg > 0 and floor( ( self:Health() - ceil( tookDmg ) ) + tookDmg ) <= maxHp then
+                        local delay = 1
                         local diffInfo = UltrakillBase.GetDifficulty()
-                        local fDelay = 1
-
                         if diffInfo <= 2 then
-                            fDelay = 1
+                            delay = 1
                         elseif diffInfo == 3 then
-                            fDelay = 2
+                            delay = 2
                         else
-                            fDelay = 2.5
+                            delay = 2.5
                         end
 
-                        
                         local hardDmg = ( tookDmg * ukHeal_HardDmg_Mult:GetFloat() )
-                        local time = ( Clamp( ( tookDmg / 20 ) + fDelay, 0, 5 ) / ukHeal_HardDmg_RecoveryMult:GetFloat() )
+                        local time = ( Clamp( ( tookDmg / 20 ) + delay, 0, 5 ) / ukHeal_HardDmg_RecoveryMult:GetFloat() )
 
                         self:SetNW2Int( "UltrakillBase_HardDamage", Clamp( ( self:GetNW2Int( "UltrakillBase_HardDamage", 0 ) + hardDmg ), 0, ( maxHp - 1 ) ) )
                         self:SetNW2Float( "UltrakillBase_HardDamage_Time", ( time + CurTime() ) )
