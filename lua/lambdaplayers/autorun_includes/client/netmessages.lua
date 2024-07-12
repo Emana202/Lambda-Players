@@ -373,10 +373,7 @@ end )
 net.Receive( "lambdaplayers_playsoundfile", function()
     local lambda = net.ReadEntity()
     if !IsValid( lambda ) then return end
-
-    local sendState = net.ReadBool()
-    if !lambda.GetIsDead or !lambda:GetIsDead() != sendState then return end
-
+    
     PlaySoundFile( lambda, net.ReadString(), net.ReadUInt( 32 ), net.ReadVector(), net.ReadFloat(), true )
 end )
 
