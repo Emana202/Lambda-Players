@@ -20,7 +20,7 @@ if SERVER then
         return wepDmgScaleMisc:GetFloat()
     end
 
-    -- God mode simple stuff
+    -- God mode & simple stuff
     hook.Add( "EntityTakeDamage", "LambdaMainDamageHook", function( ent, dmginfo )
         if ent.l_godmode then return true end
 
@@ -221,17 +221,18 @@ if SERVER then
     local ScreenShake = util.ScreenShake
     local parryFlash = Color( 255, 255, 255, 40 )
 
-    function UltrakillCheckParry( self, Dmg )
-        if !self:GetParryable() then return end
+    local function UltrakillCheckParry( self, dmginfo )
+        if !self:IsParryable() then return end
 
         ukParryConVar = ( ukParryConVar or GetConVar( "drg_ultrakill_parry" ) )
         if !ukParryConVar:GetBool() then return end
 
-        local ply = Dmg:GetAttacker()
-        if !IsValid( ply ) or !ply.IsLambdaPlayer and !ply:IsPlayer() or !self:IsInRange( ply, 200 ) then return end
+        local ply = dmginfo:GetAttacker()
+        if !IsValid( ply ) or !ply.IsLambdaPlayer and !ply:IsPlayer() then return end
 
-        if !Dmg:IsDamageType( DMG_CLUB + DMG_SLASH ) and ( !Dmg:IsDamageType( DMG_BUCKSHOT ) or !self:IsInRange( ply, 50 ) ) then return end
-        self:OnParry( ply, Dmg )
+        local bboxRadius = self:BoundingRadius()
+        if ( !dmginfo:IsDamageType( DMG_CLUB + DMG_SLASH ) or !self:IsInRange( ply, 85 + ( bboxRadius * 1.2 ) ) ) and ( !dmginfo:IsDamageType( DMG_BUCKSHOT ) or !self:IsInRange( ply, ( 25 + bboxRadius * 0.4 ) ) ) then return end
+        self:OnParry( ply, dmginfo )
     end
 
     local function RefreshStamina( ply )
@@ -250,11 +251,12 @@ if SERVER then
         net.Send( ply )
     end
 
-    function UltrakillBaseOnParryPlayer( ply )
+    local function UltrakillBaseOnParryPlayer( ply )
         if !ply.IsLambdaPlayer then
             if UltrakillBase.UltrakillMechanicsInstalled then
                 RefreshStamina( ply )
             end
+
             ply:ScreenFade( SCREENFADE.IN, parryFlash, 0.1, 0.25 )
         end
     
