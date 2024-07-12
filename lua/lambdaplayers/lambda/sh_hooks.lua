@@ -1023,22 +1023,23 @@ function ENT:InitializeMiniHooks()
                 if UltrakillBase and attacker != self and ukHeal_HardDmg_Enabled:GetBool() and ( !ukHeal_NPCOnly:GetBool() or isUkNPC or attacker.IsUltrakillProjectile ) then
                     local tookDmg = info:GetDamage()
                     local maxHp = self:GetMaxHealth()
+
                     if tookDmg > 0 and floor( ( self:Health() - ceil( tookDmg ) ) + tookDmg ) <= maxHp then
-                        local delay = 1
+                        local delay, scale = 2.5, 0.5
                         local diffInfo = UltrakillBase.GetDifficulty()
                         if diffInfo <= 2 then
                             delay = 1
+                            scale = ( diffInfo == 2 and 0.35 or 0 )
                         elseif diffInfo == 3 then
                             delay = 2
-                        else
-                            delay = 2.5
+                            scale = 0.35
                         end
 
-                        local hardDmg = ( tookDmg * ukHeal_HardDmg_Mult:GetFloat() )
-                        local time = ( Clamp( ( tookDmg / 20 ) + delay, 0, 5 ) / ukHeal_HardDmg_RecoveryMult:GetFloat() )
+                        local hardDmg = ( tookDmg * scale * ukHeal_HardDmg_Mult:GetFloat() )
+                        local time = ( Clamp( ( tookDmg * 0.05 ) + delay, 0, 5 ) / ukHeal_HardDmg_RecoveryMult:GetFloat() )
 
                         self:SetNW2Int( "UltrakillBase_HardDamage", Clamp( ( self:GetNW2Int( "UltrakillBase_HardDamage", 0 ) + hardDmg ), 0, ( maxHp - 1 ) ) )
-                        self:SetNW2Float( "UltrakillBase_HardDamage_Time", ( time + CurTime() ) )
+                        if time > 0 then self:SetNW2Float( "UltrakillBase_HardDamage_Time", ( time + CurTime() ) ) end
                     end
                 end
             end
@@ -1122,8 +1123,15 @@ function ENT:InitializeMiniHooks()
             if tookdamage then
                 if UltrakillBase then
                     local hp, maxHp = self:Health(), self:GetMaxHealth()
-                    if hp < maxHp and ukHeal_Enabled:GetBool() and ( !ukHeal_NPCOnly:GetBool() or target.IsUltrakillNextbot ) and !target:GetNW2Bool( "UltrakillBase_Sand" ) and self:IsInRange( target, ukHeal_Range:GetFloat() ) then
-                        self:SetHealth( Clamp( hp + Clamp( info:GetDamage(), 0, ukHeal_MaxHeal:GetInt() ), 0, ( maxHp - self:GetNW2Int( "UltrakillBase_HardDamage", 0 ) ) ) )
+                    if hp < maxHp and ukHeal_Enabled:GetBool() and ( !ukHeal_NPCOnly:GetBool() or target.IsUltrakillNextbot ) and !target:GetNW2Bool( "UltrakillBase_Sand" ) then 
+                        local healRange = ( ukHeal_Range:GetFloat() + target:BoundingRadius() * 0.75 )
+                        if self:IsInRange( target, healRange ) then
+                            local healHp = Clamp( info:GetDamage(), 0, ukHeal_MaxHeal:GetInt() )
+                            local healCap = ( maxHp - self:GetNW2Int( "UltrakillBase_HardDamage", 0 ) )
+
+                            self:SetHealth( Clamp( hp + healHp, 0, healCap ) )
+                            UltrakillBase.SoundScript( "Ultrakill_HP", self:GetPos(), self )
+                        end
                     end
                 end
 
