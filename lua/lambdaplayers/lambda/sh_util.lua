@@ -1320,7 +1320,7 @@ if SERVER then
 
         net.Start( "lambdaplayers_playsoundfile" )
             net.WriteEntity( self )
-            net.WriteString( filepath )
+            net.WriteString( "sound/" .. filepath )
             net.WriteUInt( self:GetCreationID(), 32 )
             net.WriteVector( self:GetPos() )
             net.WriteFloat( delay )
