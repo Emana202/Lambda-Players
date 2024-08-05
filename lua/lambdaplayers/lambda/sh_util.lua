@@ -932,9 +932,6 @@ if SERVER then
             local dropEnt = self.weapondrop
             if IsValid( dropEnt ) and dropEnt:GetOwner() != self then dropEnt = nil end
 
-            self.ragdoll = nil
-            self.weapondrop = nil
-
             local disintegrate = serversidecleanupeffect:GetBool()
             if disintegrate then
                 net.Start( "lambdaplayers_disintegrationeffect" )
@@ -951,6 +948,10 @@ if SERVER then
                 if IsValid( dropEnt ) then dropEnt:Remove() end
             end, true )
         end
+
+        self.ragdoll = nil
+        self.weapondrop = nil
+        self:SetNW2Entity( "lambda_serversideragdoll", nil )
 
         if !spawnBehavInitSpawn:GetBool() then
             self:ApplyCombatSpawnBehavior()
