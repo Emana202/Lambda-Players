@@ -445,25 +445,54 @@ if SERVER then
     function ENT:OnInjured( info )
         local attacker = info:GetAttacker()
 
-        if !self:IsPanicking() then
-            if retreatLowHP:GetBool() and ( attacker != self and IsValid( attacker ) or self:InCombat() and ( attacker != self:GetEnemy() or !attacker.IsLambdaPlayer or !attacker:IsPanicking() or LambdaRNG( 1, 3 ) == 1 ) ) then
-                local chance = self:GetCowardlyChance()
-                if chance <= 20 then
-                    chance = ( chance * LambdaRNG( 1.0, 2.5, true ) )
-                elseif chance > 60 then
-                    chance = ( chance / LambdaRNG( 1.5, 2.5, true ) )
-                end
+        if !self:IsPanicking() and retreatLowHP:GetBool() then
+            local chance = self:GetCowardlyChance()
+            local health = ( ( self:Health() + self:Armor() * 0.5 ) - info:GetDamage() )
 
-                local hpThreshold = LambdaRNG( ( chance / 4 ), chance )
-                local predHp = ( self:Health() - ( info:GetDamage() * LambdaRNG( 1.0, 1.5, true ) ) )
-                if predHp <= hpThreshold then
-                    self:RetreatFrom( self:CanTarget( attacker ) and attacker or nil )
-                    return
+            local hpRatio = ( 1 - ( health / self:GetMaxHealth() ) )
+            chance = ( chance * hpRatio )
+
+            local ene = self:GetEnemy()
+            if self:InCombat() and ene == attacker then
+                local eneHealth = ene:Health()
+                local eneHpRatio = ( eneHealth / ene:GetMaxHealth() )
+
+                local eneSelfRatio = Clamp( ( eneHpRatio / hpRatio ), 0.75, 1.25 )
+                chance = ( chance * eneHpRatio * eneSelfRatio ) 
+
+                if ene.IsLambdaPlayer and ene:IsPanicking() then
+                    chance = ( chance * 0.75 )
                 end
             end
-        elseif ( self:Health() - info:GetDamage() ) <= 1 and self:GetVoiceChance() > 0 then
-            self:PlaySoundFile( "fall" )
+
+            local rng = LambdaRNG( 100 )
+            if rng <= chance then
+                -- print( self:Nick(), health, rng .. "/" .. chance, "\n" )
+                -- self:EmitSound( "ui/hitsound.wav", 80 )
+
+                self:RetreatFrom( self:CanTarget( attacker ) and attacker or nil )
+                return
+            end
+
         end
+
+        --[[
+        if !self:IsPanicking() and retreatLowHP:GetBool() and ( attacker != self and IsValid( attacker ) or self:InCombat() and ( attacker != self:GetEnemy() or !attacker.IsLambdaPlayer or !attacker:IsPanicking() or LambdaRNG( 1, 3 ) == 1 ) ) then
+            local chance = self:GetCowardlyChance()
+            if chance <= 20 then
+                chance = ( chance * LambdaRNG( 1.0, 2.5, true ) )
+            elseif chance > 60 then
+                chance = ( chance / LambdaRNG( 1.5, 2.5, true ) )
+            end
+
+            local hpThreshold = LambdaRNG( ( chance / 4 ), chance )
+            local predHp = ( self:Health() - ( info:GetDamage() * LambdaRNG( 1.0, 1.5, true ) ) )
+            if predHp <= hpThreshold then
+                self:RetreatFrom( self:CanTarget( attacker ) and attacker or nil )
+                return
+            end
+        end
+        ]]
 
         local ene = self:GetEnemy()
         if attacker != self and attacker != ene and IsValid( attacker ) and ( !self:ShouldTreatAsLPlayer( attacker ) or LambdaRNG( 2 ) == 1 ) and ( !IsValid( ene ) or self:GetRangeSquaredTo( attacker ) < self:GetRangeSquaredTo( ene ) ) and self:CanTarget( attacker ) then
@@ -508,7 +537,7 @@ if SERVER then
         if attacker == self then
             if victim == enemy then
                 if !self.l_preventdefaultspeak then
-                    if LambdaRNG( 100 ) <= self:GetVoiceChance() and LambdaRNG( 3 ) == 1 then
+                    if LambdaRNG( 100 ) <= self:GetVoiceChance() and LambdaRNG( 3 ) == 1 and !self:IsSpeaking( "taunt" ) then
                         self:PlaySoundFile( "kill" )
                     elseif LambdaRNG( 100 ) <= self:GetTextChance() and !self:IsSpeaking() and self:CanType() then
                         self.l_keyentity = victim
