@@ -105,7 +105,7 @@ end, "Noclip" )
 local killbind = GetConVar( "lambdaplayers_lambda_allowkillbind" )
 -- Use Killbind
 AddUActionToLambdaUA( function( self )
-    if !killbind:GetBool() or LambdaRNG( self:IsPlayingTaunt() and 40 or 150 ) != 1 then return end
+    if !killbind:GetBool() or LambdaRNG( self:IsPlayingTaunt() and 10 or 150 ) != 1 then return end
     self.l_killbinded = true
     self:Kill()
     self.l_killbinded = false

@@ -250,7 +250,6 @@ end
 local retreatOptions = { run = true, callback = function( lambda )
     local target = lambda:GetEnemy()
     if CurTime() >= lambda.l_retreatendtime or IsValid( target ) and ( ( target.IsLambdaPlayer or target:IsPlayer() ) and !target:Alive() or !lambda:IsInRange( target, 3000 ) ) then
-        lambda:SetRun( false )
         lambda.l_retreatendtime = 0
     end
 end }

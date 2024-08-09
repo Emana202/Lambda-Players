@@ -252,7 +252,10 @@ function ENT:Initialize()
         self.l_NextCanFireCheckT = ( CurTime() + LambdaRNG( 0.1, 0.3, true ) )
         self.l_LastDeathTime = 0 -- The last time we have died
         self.l_LastWeaponSwitchTime = 0 -- The last time we have switched our weapon
-
+        
+        self.l_NextRetreatDmgT = 0
+        self.l_NextRetreatAttackT = false
+        
         self.l_ladderarea = nil -- The ladder nav area we are currenly using to climb
         self.l_CurrentPath = nil -- The current path (PathFollower) we are on. If off navmesh, this will hold a Vector
         self.l_movepos = nil -- The position or entity we are going to
@@ -806,12 +809,24 @@ function ENT:Think()
                     local canSee = self:CanSee( target )
                     local attackRange = self.l_CombatAttackRange
 
-                    if attackRange and ( !isPanicking or useWeaponPanic:GetBool() ) then
-                        if isPanicking then attackRange = ( attackRange * 0.8 ) end
+                    local panicAttack = ( !isPanicking or useWeaponPanic:GetBool() )
+                    if attackRange and panicAttack then
+                        local canAttack = true
+                        if panicAttack then
+                            if self.Face != target then
+                                if !self.l_NextRetreatAttackT then
+                                    self.l_NextRetreatAttackT = LambdaRNG( 0.5, 3, true )
+                                elseif CurTime() <= self.l_NextRetreatAttackT then
+                                    canAttack = false
+                                end
+                            end
 
-                        if canSee then
+                            attackRange = ( attackRange * 0.8 )
+                        end
+
+                        if canAttack and canSee then
                             if self:IsInRange( target, attackRange * ( self.l_HasMelee and 3 or 1 ) ) then
-                                self:LookTo( target, LambdaRNG( 0.5, 2.0, true ), false, 2 )
+                                self:LookTo( target, LambdaRNG( 0.5, 2, true ), false, 2 )
                             end
 
                             if self:IsInRange( target, attackRange ) then
@@ -819,6 +834,8 @@ function ENT:Think()
                                 if CurTime() > self.l_NextCanFireCheckT then self:UseWeapon( target ) end
                             end
                         end
+                    elseif self.Face != target then
+                        self.l_NextRetreatAttackT = false
                     end
 
                     if !isPanicking then
