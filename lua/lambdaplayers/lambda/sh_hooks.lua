@@ -1111,7 +1111,9 @@ function ENT:InitializeMiniHooks()
                         info:SetDamage( flDmg )
                     end
                 elseif curArmor >= flDmg then
+                    info:SetDamage( 0 )
                     self:SetArmor( Round( curArmor - flDmg, 0 ) )
+                    self:OnInjured( info )
                     return true
                 elseif curArmor > 0 then
                     info:SetDamage( flDmg - curArmor )
