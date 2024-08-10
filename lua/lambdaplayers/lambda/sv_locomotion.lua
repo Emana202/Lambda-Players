@@ -91,7 +91,6 @@ function ENT:MoveToPos( pos, options )
     local runSpeed = self:GetRunSpeed()
     local stepH = loco:GetStepHeight()
     local jumpH = loco:GetJumpHeight()
-    local curGoal, prevGoal
     local nextJumpT = CurTime() + 0.5
     local returnMsg = "ok"
     local callbackRunT = ( CurTime() + ( options.cbTime or 0 ) )
@@ -146,20 +145,15 @@ function ENT:MoveToPos( pos, options )
             end
         end
 
+        local curGoal = path:GetCurrentGoal()
         if loco:IsStuck() then
             -- This prevents the stuck handling from running if we are right next to the entity we are going to
             if isvector( movePos ) or !self:IsInRange( movePos, 100 ) then
-                local result = self:HandleStuck()
+                local result = self:HandleStuck( curGoal )
                 if !result then returnMsg = "stuck"; break end
             else
                 loco:ClearStuck()
             end
-        end
-
-        local goal = path:GetCurrentGoal()
-        if goal and ( !curGoal or curGoal.area != goal.area ) then
-            prevGoal = curGoal
-            curGoal = goal
         end
 
         if !self:IsDisabled() and CurTime() >= self.l_moveWaitTime then
@@ -224,10 +218,11 @@ function ENT:MoveToPos( pos, options )
                         end
                     else
                         local shouldJump = false
-                        if moveType == 2 and ( prevGoal.pos.z - selfPos.z ) <= 0 then
+                        if moveType == 2 then
                             shouldJump = true
                         elseif moveType == 3 and destPos:DistToSqr( selfPos ) <= 2048 then
                             shouldJump = true
+                        --[[
                         elseif movePos:DistToSqr( selfPos ) > 4096 then
                             -- Jumping over ledges and close up jumping
                             local stepAhead = ( selfPos + vector_up * stepH )
@@ -238,6 +233,7 @@ function ENT:MoveToPos( pos, options )
                                 grHeight = GetSimpleGroundHeightWithFloor( curArea, stepAhead + goalNormal * 30 )
                                 if grHeight and ( grHeight - selfPos.z ) < -jumpH then shouldJump = true end
                             end
+                        ]]
                         end
 
                         if shouldJump and CurTime() >= nextJumpT and self:LambdaJump() then
@@ -245,6 +241,7 @@ function ENT:MoveToPos( pos, options )
                         end
                     end
 
+                    --[[
                     local shouldSlow = ( ( moveType == 1 or moveType == 2 or moveType == 3 or moveType == 4 or moveType == 5 ) and !self:IsPanicking() and !self:GetCrouch() and destPos:DistToSqr( selfPos ) <= 22500 )
                     local walkTime = 0.1
                     if !shouldSlow and CurTime() >= nearLadderCheckT then
@@ -256,6 +253,7 @@ function ENT:MoveToPos( pos, options )
                         end
                     end
                     if shouldSlow then self:ForceMoveSpeed( self:GetSlowWalkSpeed(), walkTime ) end
+                    ]]
 
                     -- Air movement
                     if !self.l_isswimming and !self:IsOnGround() then
@@ -531,7 +529,7 @@ end
 -- This function will either return true or false
 -- If this returns true, continue on our current path
 -- Unless false, don't continue and stop
-function ENT:HandleStuck()
+function ENT:HandleStuck( curGoal )
     if self:GetIsDead() then -- Who knows just in case
         self.loco:ClearStuck()
         return false
@@ -558,14 +556,26 @@ function ENT:HandleStuck()
 
     local selfPos = self:GetPos()
     local mins, maxs = self:GetCollisionBounds()
-
+    
     unstucktable.start = selfPos
-    unstucktable.endpos = selfPos + vector_up * 4
     unstucktable.mins = mins
     unstucktable.maxs = maxs
     unstucktable.filter = self
 
+    -- Check if got someone blocking us and if so, fucking try to kill them.
+    if LambdaRNG( 100 ) <= self:GetCombatChance() then
+        unstucktable.endpos = ( selfPos + ( curGoal.pos - selfPos ):GetNormalized() * 32 )
+
+        local possibleBlocker = TraceHull( unstucktable ).Entity
+        if IsValid( possibleBlocker ) and self:CanTarget( possibleBlocker ) then
+            self:AttackTarget( possibleBlocker )
+            return true
+        end
+    end
+
+    unstucktable.endpos = ( selfPos + vector_up * 4 )
     local istuckinsomething = TraceHull( unstucktable )
+
     if !istuckinsomething.Hit then -- If we didn't get stuck in any entity then try to jump
         self:LambdaJump()
         self.loco:ClearStuck()
@@ -685,6 +695,7 @@ function ENT:AvoidCheck( goalAng )
         debugoverlay.Box( avoidtracetable.start, avoidtracetable.mins, avoidtracetable.maxs, 0.1, ( leftresult.Hit and hitcol or safecol ), false )
     end
 
+    --[[
     if leftresult.Hit and rightresult.Hit then -- Back up
         local lent, rent = leftresult.Entity, rightresult.Entity
         local ene = ( self.l_HasMelee and self:GetEnemy() )
@@ -692,6 +703,7 @@ function ENT:AvoidCheck( goalAng )
 
         self:ApproachDir( -selfForward, 0.25 )
     end
+    ]]
     if leftresult.Hit and !rightresult.Hit then -- Move to the right
         self.loco:Approach( self:GetPos() + selfRight * self.loco:GetDesiredSpeed(), 100 )
     elseif rightresult.Hit and !leftresult.Hit then  -- Move to the left

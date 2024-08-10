@@ -1014,7 +1014,7 @@ function ENT:Think()
         end
 
         -- Out of Bounds Fail Safe --
-        if self:IsInWorld() and ( waterLvl == 0 or !lethalWaters:GetBool() ) then
+        if self:IsInWorld() then
             self.l_outboundsreset = curTime + 5
         elseif curTime >= self.l_outboundsreset then
             self:Kill()
@@ -1115,6 +1115,7 @@ function ENT:Think()
         end
 
         -- Drowning Mechanic
+        local lethalWtr = lethalWaters:GetBool()
         if waterLvl == 3 then
             if !self.l_DrownStartTime then
                 local airTime = drownTime:GetFloat()
@@ -1123,7 +1124,7 @@ function ENT:Think()
                 local preDmgHp = self:Health()
 
                 local drownDmg = DamageInfo()
-                drownDmg:SetDamage( 10 )
+                drownDmg:SetDamage( lethalWtr and 20 or 10 )
                 drownDmg:SetAttacker( Entity( 0 ) )
                 drownDmg:SetDamageType( DMG_DROWN )
                 self:TakeDamageInfo( drownDmg )
@@ -1136,7 +1137,7 @@ function ENT:Think()
 
                     self:EmitSound( "Player.DrownContinue" )
                 end
-                self.l_DrownActionTime = ( curTime + 1 )
+                self.l_DrownActionTime = ( curTime + ( lethalWtr and 0.5 or 1 ) )
             end
         else
             self.l_DrownStartTime = false
@@ -1150,7 +1151,7 @@ function ENT:Think()
         end
 
         -- Handle swimming
-        if waterLvl == 3 and !self:IsInNoClip() then -- Don't swim if we are noclipping
+        if waterLvl == 3 and !self:IsInNoClip() and !lethalWtr then -- Don't swim if we are noclipping or the water is lethal
             if curTime >= self.l_nextswimposupdate then -- Update our swimming position over time
                 self.l_nextswimposupdate = curTime + 0.1
 
