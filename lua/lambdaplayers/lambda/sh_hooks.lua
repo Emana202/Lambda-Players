@@ -50,6 +50,8 @@ local dropweaponents = GetConVar( "lambdaplayers_allowweaponentdrop" )
 local typeNameRespond = GetConVar( "lambdaplayers_text_typenameonrespond" )
 local armorFeedback = GetConVar( "lambdaplayers_lambda_armorfeedback" )
 local ablativeArmor = GetConVar( "lambdaplayers_lambda_ablativearmor" )
+local laughMoment = GetConVar( "lambdaplayers_lambda_laughonkilled" )
+local tbagKillTarg = GetConVar( "lambdaplayers_combat_tbagkilledenemy" )
 
 if SERVER then
 
@@ -545,7 +547,7 @@ if SERVER then
                     end
                 end
 
-                if LambdaRNG( 10 ) == 1 then
+                if LambdaRNG( 10 ) == 1 and tbagKilledTarg:GetBool() then
                     self:SetState( "TBaggingPosition", victim:GetPos() )
                     self:DebugPrint( "I killed my enemy. It's t-bagging time..." )
                     return
@@ -567,7 +569,7 @@ if SERVER then
 
         if self:IsInRange( victim, 1500 ) and self:CanSee( victim ) then
             local witnessChance = LambdaRNG( 10 )
-            if witnessChance == 1 or ( attacker == victim or attacker:IsWorld() ) and witnessChance > 6 then
+            if ( witnessChance == 1 or ( attacker == victim or attacker:IsWorld() ) and witnessChance > 6 ) and laughMoment:GetBool() then
                 self:SetState( "Laughing", { victim, self:GetDestination() } )
                 self:CancelMovement()
                 self:DebugPrint( "I killed or saw someone die. Laugh at this man!" )
