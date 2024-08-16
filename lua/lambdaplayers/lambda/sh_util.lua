@@ -13,6 +13,7 @@ local RealTime = RealTime
 local IsValid = IsValid
 local file_Find = file.Find
 local abs = math.abs
+local sqrt = math.sqrt
 local max = math.max
 local Clamp = math.Clamp
 local FindInSphere = ents.FindInSphere
@@ -1328,8 +1329,8 @@ if SERVER then
         net.Broadcast()
     end
 
-    local maxSafeFallSpeed = math.sqrt( 2 * 600 * 20 * 12 )
-    local fatalFallSpeed = math.sqrt( 2 * 600 * 60 * 12 )
+    local maxSafeFallSpeed = sqrt( 2 * 600 * 20 * 12 )
+    local fatalFallSpeed = sqrt( 2 * 600 * 60 * 12 )
     function ENT:GetFallDamage( speed, realDmg )
         realDmg = ( realDmg == nil and realisticfalldamage:GetBool() or realDmg )
         speed = ( speed or self.l_FallVelocity )

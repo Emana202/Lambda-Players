@@ -898,7 +898,26 @@ if SERVER then
         self.l_FallVelocity = 0
     end
 
+    local TraceHull = util.TraceHull
+    local fallTrTbl = {
+        mins = Vector( -16, -16, 0 ),
+        maxs = Vector( 16, 16, 72 ),
+        collisiongroup = COLLISION_GROUP_PLAYER
+    }
     function ENT:OnLeaveGround( ent )
+        self:SimpleTimer( LambdaRNG( 0.1, 0.33, true ), function()
+            if self:IsSpeaking( "fall" ) then return end
+
+            fallTrTbl.start = ( self:GetPos() + ( self.loco:GetVelocity() * 0.1 ) )
+            fallTrTbl.endpos = ( fallTrTbl.start - vector_up * 1000 )
+            fallTrTbl.filter = self
+
+            local fallTrace = TraceHull( fallTrTbl )
+            if ( !fallTrace.Hit or self:GetFallDamageFromHeight( fallTrTbl.start:Distance( fallTrace.HitPos ) ) >= self:Health() ) and !fallTrace.HitPos:IsUnderwater() then
+                self:PlaySoundFile( "fall", false )
+            end
+        end )
+
         LambdaRunHook( "LambdaOnLeaveGround", self, ent )
     end
 
