@@ -410,6 +410,10 @@ if SERVER then
     function ENT:Disposition()
         return D_NU
     end
+
+    function ENT:GetActiveWeapon()
+        return NULL
+    end
 end
 
 if ( CLIENT ) then

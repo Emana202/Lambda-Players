@@ -547,7 +547,7 @@ if SERVER then
                     end
                 end
 
-                if LambdaRNG( 10 ) == 1 and tbagKilledTarg:GetBool() then
+                if LambdaRNG( 10 ) == 1 and tbagKillTarg:GetBool() then
                     self:SetState( "TBaggingPosition", victim:GetPos() )
                     self:DebugPrint( "I killed my enemy. It's t-bagging time..." )
                     return
