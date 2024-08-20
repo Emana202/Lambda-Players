@@ -62,11 +62,12 @@ AddUActionToLambdaUA( function( self )
     self:SetCrouch( true )
 
     local lastState = self:GetState()
-    local crouchTime = ( CurTime() + LambdaRNG( 15 ) )
-    self:NamedTimer( "UnCrouch", 1, 0, function() 
-        if self:GetState() == lastState and CurTime() < crouchTime then return end
-        self:SetCrouch( false )
-        return true
+    local crouchTime = ( CurTime() + LambdaRNG( 20 ) )
+    self:NamedTimer( "UnCrouch", 1, 0, function()
+        if CurTime() >= crouchTime or self:GetState() != lastState or lastState == "Combat" and self:InCombat() and !self:CanSee( self:GetEnemy() ) then
+            self:SetCrouch( false )
+            return true
+        end
     end )
 end, "Crouch" )
 
