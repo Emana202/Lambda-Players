@@ -58,7 +58,7 @@ end, "FindButton" )
 
 -- Crouch
 AddUActionToLambdaUA( function( self )
-    if LambdaRNG( 2 ) != 1 or self:IsPanicking() then return end
+    if self:IsPanicking() then return end
     self:SetCrouch( true )
 
     local lastState = self:GetState()
