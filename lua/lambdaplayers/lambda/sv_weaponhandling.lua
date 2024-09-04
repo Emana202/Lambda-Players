@@ -109,13 +109,13 @@ function ENT:SwitchWeapon( weaponname, forceswitch, fromFuncs )
     end
 
     self.l_WeaponThinkFunction = weapondata.OnThink
+    self.l_LastWeaponSwitchTime = CurTime()
 
     local onDeployFunc = ( weapondata.OnDeploy or weapondata.OnEquip )
     if onDeployFunc then onDeployFunc( self, wepent, oldweaponname ) end
     
     PlaySoundTable( self, wepent, weapondata.deploysound )
     self:SetIsReloading( false )
-    self.l_LastWeaponSwitchTime = CurTime()
 
     if weaponname != "none" and ( self.l_initialized or weaponname != "physgun" ) then
         self:EmitSound( "common/wpn_select.wav", 75, 100, 0.32, CHAN_ITEM )

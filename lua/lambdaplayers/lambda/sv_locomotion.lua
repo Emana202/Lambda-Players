@@ -562,9 +562,9 @@ function ENT:HandleStuck( curGoal )
     unstucktable.maxs = maxs
     unstucktable.filter = self
 
-    -- Check if got someone blocking us and if so, fucking try to kill them.
+    -- Check if got someone blocking us and if so, fucking try to kill them if we're aggressive enough
     if curGoal and LambdaRNG( 100 ) <= self:GetCombatChance() then
-        unstucktable.endpos = ( selfPos + ( curGoal.pos - selfPos ):GetNormalized() * 32 )
+        unstucktable.endpos = ( selfPos + ( curGoal.pos - selfPos ):GetNormalized() * 40 )
 
         local possibleBlocker = TraceHull( unstucktable ).Entity
         if IsValid( possibleBlocker ) and self:CanTarget( possibleBlocker ) then
