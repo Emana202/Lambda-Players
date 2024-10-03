@@ -414,6 +414,11 @@ if SERVER then
     function ENT:GetActiveWeapon()
         return NULL
     end
+
+    local emptyTbl = {}
+    function ENT:GetWeapons()
+        return emptyTbl
+    end
 end
 
 if ( CLIENT ) then
