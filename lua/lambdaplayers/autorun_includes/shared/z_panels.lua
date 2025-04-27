@@ -316,8 +316,10 @@ if CLIENT then
 
             menu:AddOption( "Apply " .. line:GetColumnText( 1 ) .. " Preset", function()
                 if isclientonly then
-                    for k, v in pairs( line:GetSortValue( 1 ) ) do
-                        GetConVar( k ):SetString( v )
+                    for name, val in pairs( line:GetSortValue( 1 ) ) do
+                        if !val then return end
+                        local cvar = GetConVar( name )
+                        if cvar then cvar:SetString( val ) end
                     end
                 end
 

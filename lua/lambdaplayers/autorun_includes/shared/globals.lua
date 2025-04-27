@@ -383,6 +383,13 @@ function EntMeta:EyeAngles()
     return _LambdaOldEyeAngles( self )
 end
 
+-- If we are alive
+_LambdaOldAlive = _LambdaOldAlive or EntMeta.Alive
+function EntMeta:Alive()
+    if self.IsLambdaPlayer then return !self:GetIsDead() end
+    return _LambdaOldAlive( self )
+end
+
 if ( SERVER ) then
     _LambdaOldEntitySetHealth = _LambdaOldEntitySetHealth or EntMeta.SetHealth
     function EntMeta:SetHealth( newHealth )

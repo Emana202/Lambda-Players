@@ -55,7 +55,7 @@ function ENT:MoveToPos( pos, options )
     if !movePos then return "failed" end
 
     self.l_issmoving = true
-    options = ( options or {} )
+    options = ( options and table_Copy( options ) or {} )
 
     local overridePath, overrideOptions = LambdaRunHook( "LambdaOnBeginMove", self, movePos, true, options )
     if overridePath then 
@@ -77,7 +77,7 @@ function ENT:MoveToPos( pos, options )
     path:SetMinLookAheadDistance( self.l_LookAheadDistance )
 
     self.l_movepos = movePos
-    self.l_moveoptions = table_Copy( options )
+    self.l_moveoptions = options
     self.l_CurrentPath = path
 
     self:SetSlowWalk( options.walk or false )

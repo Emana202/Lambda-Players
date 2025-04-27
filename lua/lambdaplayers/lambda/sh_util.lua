@@ -1472,15 +1472,12 @@ if SERVER then
         if !addRelationFunc then return end
 
         local relations, priority = self:Relations( ent )
-        addRelationFunc( ent, self, relations, ( priority or 1 ) )
-
-        if relations == D_HT and ent.IsVJBaseSNPC then
-            self:SimpleTimer( 0.1, function()
-                if !IsValid( ent ) or !ent.VJ_AddCertainEntityAsEnemy or !ent.CurrentPossibleEnemies then return end
-                ent.VJ_AddCertainEntityAsEnemy[ #ent.VJ_AddCertainEntityAsEnemy + 1 ] = self
-                ent.CurrentPossibleEnemies[ #ent.CurrentPossibleEnemies + 1 ] = self
-            end, true )
+        if ent.IsVJBaseSNPC then
+            ent:SetRelationshipMemory( self, VJ.MEM_CACHE_DISPOSITION, relations )
+            ent:SetRelationshipMemory( self, VJ.MEM_OVERRIDE_DISPOSITION, relations )
+            if ent:GetEnemy() == self then ent:ResetEnemy( true, false ) end
         end
+        addRelationFunc( ent, self, relations, ( priority or 2 ) )
     end
 
     -- Calls ENT:HandleAllValidNPCRelations for all NPCs and Nextbots

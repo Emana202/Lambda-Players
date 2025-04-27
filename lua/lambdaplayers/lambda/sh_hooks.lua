@@ -1188,18 +1188,16 @@ function ENT:InitializeMiniHooks()
                 end
 
                 -- VJ Base's 'Become enemy to a friendly player' feature
-                if target.IsVJBaseSNPC and !target.VJ_IsBeingControlled and target:CheckRelationship( self ) == D_LI then
-                    local curAnger = ( target.AngerLevelTowardsPlayer + 1 )
-                    target.AngerLevelTowardsPlayer = curAnger
+                if target.IsVJBaseSNPC and !target.VJ_IsBeingControlled then 
+                    local becomeEne = target.BecomeEnemyToPlayer
+                    if becomeEne and target:CheckRelationship( self ) == D_LI then
+                        local relationMemory = target.RelationshipMemory[ self ]
+                        local hostileLevel = ( relationMemory[ VJ.MEM_HOSTILITY_LEVEL ] and ( relationMemory[ VJ.MEM_HOSTILITY_LEVEL ] + 1 ) or 1 )
+                        target:SetRelationshipMemory( self, VJ.MEM_HOSTILITY_LEVEL, hostileLevel )
 
-                    if curAnger > target.BecomeEnemyToPlayerLevel then
-                        if target:Disposition( self ) != D_HT then
-                            target:CustomOnBecomeEnemyToPlayer( info, target:GetLastDamageHitGroup() )
-                            if target.IsFollowing && target.FollowData.Ent == self then
-                                target:FollowReset()
-                            end
-
-                            target.VJ_AddCertainEntityAsEnemy[ #target.VJ_AddCertainEntityAsEnemy + 1 ] = self
+                        if hostileLevel > becomeEne && target:Disposition( self ) != D_HT then
+                            target:OnBecomeEnemyToPlayer( info, target:GetLastDamageHitGroup() )
+                            target:SetRelationshipMemory( self, VJ.MEM_OVERRIDE_DISPOSITION, D_HT )
                             target:AddEntityRelationship( self, D_HT, 2 )
                             target.TakingCoverT = ( CurTime() + 2 )
                             target:PlaySoundSystem( "BecomeEnemyToPlayer" )
@@ -1207,12 +1205,9 @@ function ENT:InitializeMiniHooks()
                             if !IsValid( target:GetEnemy() ) then
                                 target:StopMoving()
                                 target:SetTarget( self )
-                                target:VJ_TASK_FACE_X( "TASK_FACE_TARGET" )
+                                target:SCHEDULE_FACE( "TASK_FACE_TARGET" )
                             end
                         end
-
-                        target.Alerted = true
-                        target:SetNPCState( NPC_STATE_ALERT )
                     end
                 end
             end

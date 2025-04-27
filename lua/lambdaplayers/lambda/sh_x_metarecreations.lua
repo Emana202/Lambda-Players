@@ -22,11 +22,6 @@ function ENT:EyeAngles2()
     return self:EyeAngles()
 end
 
--- If we are alive
-function ENT:Alive()
-    return !self:GetIsDead() 
-end
-
 -- Returns the direction we are looking to
 function ENT:GetAimVector()
     return self:EyeAngles():Forward()
